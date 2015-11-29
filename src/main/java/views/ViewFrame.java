@@ -126,13 +126,6 @@ public class ViewFrame extends JFrame {
         previous.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 count--;
-//				if (count<=0) 
-//				{
-//			        System.out.println("previous");
-//					previous.setVisible(false);
-//					previous.invalidate();
-//		
-//				}
                 if (count >= 0) {
                     System.out.println(count);
                     Document document = collection.find(eq("_id", indexDocuments.get(count))).first();
