@@ -82,7 +82,7 @@ public class LoginFrame extends JFrame {
 					connection.authenticate();
 					
 					MongoCollection<Document> collection = connection.database().getCollection("testEncrypt");
-										ViewFrame viewFrame = new ViewFrame(0, collection);
+										ViewFrame viewFrame = new ViewFrame(collection);
 				viewFrame.setVisible(true);
 					collection.count();
 				}

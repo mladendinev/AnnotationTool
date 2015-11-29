@@ -17,7 +17,7 @@ public class TestConnection {
 	
 	public static void main(String[] args){
 		try{
-			char [] testPassword =  {'d','d','d'};
+			char [] testPassword =  {'f','i','n','a','l','Y','e','a','r','P','r','o','j','e','c','t'};
 			String testUsername = "aaaa";
 			MongoCredential credential = MongoCredential.createCredential(testUsername, "SearchApiResults", testPassword);
 			MongoClientOptions mongoOptions=MongoClientOptions.builder().serverSelectionTimeout(1000).readPreference(ReadPreference.primaryPreferred()).build();
