@@ -1,34 +1,34 @@
 package views;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
-import org.bson.Document;
-
-import com.mongodb.MongoException;
-import com.mongodb.MongoSecurityException;
-import com.mongodb.client.MongoCollection;
-
-import auth.ConnectionMongo;
-
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import java.awt.event.ActionListener;
-import java.net.UnknownHostException;
-import java.awt.event.ActionEvent;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+import java.awt.Insets;
+import auth.ConnectionMongo;
+import java.awt.Window.Type;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-public class LoginFrame extends JFrame {
+public class LoginFrame extends JFrame{
 
 	private JPanel contentPane;
 	private JTextField loginField;
 	private JPasswordField passwordField;
+
 	
 	/**
 	 * Launch the application.
@@ -49,8 +49,9 @@ public class LoginFrame extends JFrame {
 	/**
 	 * Create the frame.
 	 */
+	    
 	public LoginFrame() {
-		
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Annotation tool");
 		setBounds(100, 100, 312, 200);
@@ -73,24 +74,30 @@ public class LoginFrame extends JFrame {
 		loginField.setColumns(10);
 		
 		JButton btnLogin = new JButton("Login");
+		btnLogin.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+		        if(e.getKeyCode()== KeyEvent.VK_ENTER)
+					try {
+						establishConnection();
+						
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						JOptionPane.showMessageDialog(null, "Wrong Credentials or missing VPN connection");
+//						e1.printStackTrace();
+					}
+			}
+		});
+		
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try{	
-					String getUserName = loginField.getText();
-					char[] getPassword = passwordField.getPassword();
-					ConnectionMongo connection = new ConnectionMongo(getUserName, getPassword);
-					connection.authenticate();
-					
-					MongoCollection<Document> collection = connection.database().getCollection("testEncrypt");
-										ViewFrame viewFrame = new ViewFrame(collection);
-				viewFrame.setVisible(true);
-					collection.count();
-				}
+				try{
 
-					
+					establishConnection();
+				}	
 				catch (Exception error){
-					JOptionPane.showMessageDialog(null, "Try Again");
-					throw new RuntimeException();
+					JOptionPane.showMessageDialog(null, "Wrong Credentials or missing VPN connection");
+//					throw new RuntimeException();
 					
 				}
 			}
@@ -102,4 +109,32 @@ public class LoginFrame extends JFrame {
 		passwordField.setBounds(132, 66, 114, 19);
 		contentPane.add(passwordField);
 	}
+	
+	private void establishConnection() throws Exception{
+		String getUserName = loginField.getText();
+		char[] getPassword = passwordField.getPassword();
+		ConnectionMongo connection = new ConnectionMongo(getUserName, getPassword);
+		connection.authenticate();
+		JFrame f = (JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, contentPane);
+		f.setVisible(false);
+		
+		MenuFrame menuFrame = new MenuFrame(connection);
+		menuFrame.setVisible(true);
+	}
+	
+	
+	  private class CustomKeyListener extends KeyAdapter{
+		  
+	      public void keyTyped(KeyEvent e) {           
+	      }
+	      @Override
+	      public void keyPressed(KeyEvent e) {
+	         if(e.getKeyCode() == KeyEvent.VK_ENTER){
+	            System.out.println("Heurrica!");
+	         }
+	      }
+
+	      public void keyReleased(KeyEvent e) {            
+	      }    
+	   } 
 }

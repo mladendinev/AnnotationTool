@@ -21,11 +21,13 @@ public class ConnectionMongo {
     {
     	try 
         {	
-            MongoCredential credential = MongoCredential.createCredential(user, "SearchApiResults", pass);
+            MongoCredential credential = MongoCredential.createCredential(user, "mbax2md2", pass);
             MongoClientOptions mongoOptions=MongoClientOptions.builder().serverSelectionTimeout(1000).readPreference(ReadPreference.primaryPreferred()).build();
-            mongoClient = new MongoClient(new ServerAddress("localhost", 27017), Collections.singletonList(credential),mongoOptions);
-            db = mongoClient.getDatabase("SearchApiResults");
-            db.getCollection("testEncrypt").count();
+            mongoClient = new MongoClient(new ServerAddress("130.88.192.221", 27018), Collections.singletonList(credential),mongoOptions);
+            db = mongoClient.getDatabase("mbax2md2");
+            
+            // Test the connection - if this line fails the connection has not been established
+            db.getCollection("streamDiagnostic").count();
         }
         catch (Exception e) 
         {

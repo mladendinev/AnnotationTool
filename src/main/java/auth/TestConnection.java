@@ -32,7 +32,6 @@ public class TestConnection {
 
 		catch (com.mongodb.MongoSecurityException ex)
 		{
-			System.out.println(ex);
 			throw new RuntimeException();
 		}
 
