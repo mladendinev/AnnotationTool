@@ -10,18 +10,15 @@ import org.bson.types.ObjectId;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.exists;
+import static com.mongodb.client.model.Filters.*;
 
 public class SleepTweetsFrame extends JFrame {
 
@@ -31,11 +28,11 @@ public class SleepTweetsFrame extends JFrame {
     private ConnectionMongo connection;
 
     private static ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
-    private static ArrayList<ObjectId> annotated = new ArrayList<ObjectId>();
     private JTextField extraText;
-    private JButton positiveButton;
-    private JButton negativeButton;
-    private JButton neutralButton;
+    private JButton submitButton;
+    private JTextField labelAsValue;
+    private final JTextField typeExtraInfo = new JTextField();
+
     /**
      * Launch the application.
      */
@@ -43,9 +40,6 @@ public class SleepTweetsFrame extends JFrame {
     // EventQueue.invokeLater(new Runnable() {
     // public void run() {
     //try {
-    //char[] testPassword = {'f', 'i', 'n', 'a', 'l', 'Y', 'e', 'a', 'r', 'P', 'r', 'o', 'j', 'e', 'c', 't'};
-    //MongoCredential credential = MongoCredential.createCredential("admin", "SearchApiResults", testPassword);
-    //MongoClient mongoClient = new MongoClient(new ServerAddress("localhost", 27017),
     //        Collections.singletonList(credential));
     //  MongoDatabase db = mongoClient.getDatabase("SearchApiResults");
     //MongoCollection<Document> collection = db.getCollection("testEncrypt");
@@ -69,26 +63,23 @@ public class SleepTweetsFrame extends JFrame {
         final String user = connection.username();
         String oppositeLock1;
         String oppositeLock2;
-        switch (user) {
-            case "rmoriss":
-                oppositeLock1 = "nberry_lock";
-                oppositeLock2 = "mladen_lock";
-                break;
-            case "nberry":
-                oppositeLock1 = "rmorris_lock";
-                oppositeLock2 = "mladen_lock";
-                break;
-            default:
-                oppositeLock1 = "rmorris_lock";
-                oppositeLock2 = "nberry_lock";
-                break;
+
+        if (user.equals("rmorris")) {
+            oppositeLock1 = "nberry_lock";
+            oppositeLock2 = "mladen_lock";
+        } else if (user.equals("nberry")) {
+            oppositeLock1 = "rmorris_lock";
+            oppositeLock2 = "mladen_lock";
+        } else {
+            oppositeLock1 = "rmorris_lock";
+            oppositeLock2 = "nberry_lock";
         }
 
-        clearLocks(sleepCollection, user+"_lock");
+        clearLocks(sleepCollection, user + "_lock");
 
-        int numberTweetsForAnnot = 10;
+        int numberTweetsForAnnot = 100;
         MongoCursor<Document> sleepTweetsCur = sleepCollection.find(and(exists(oppositeLock1, false), exists("user", false),
-                                                                    exists(oppositeLock2, false))).iterator();
+                exists(oppositeLock2, false))).iterator();
 
         while (sleepTweetsCur.hasNext() && numberTweetsForAnnot > 0) {
             ids.add((ObjectId) sleepTweetsCur.next().get("_id"));
@@ -105,11 +96,11 @@ public class SleepTweetsFrame extends JFrame {
                     new Document("$set", lock));
         }
 
-       final MongoCollection<Document> extraInfoCollection = connection.database().getCollection("extraInformation");
+        final MongoCollection<Document> extraInfoCollection = connection.database().getCollection("extraInformation");
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
-        setBounds(100, 100, 645, 350);
+        setBounds(100, 100, 731, 350);
         setTitle("Annotate sleep related tweets");
 
         contentPane = new JPanel();
@@ -119,21 +110,17 @@ public class SleepTweetsFrame extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                for (ObjectId tweet : ids) {
-                    sleepCollection.updateOne(eq("_id", tweet),
-                            new Document("$unset", lock));
-                }
+                clearLocks(sleepCollection, user + "_lock");
                 System.exit(0);
             }
         });
-
 
         EtchedBorder border = new EtchedBorder();
         final JTextArea textArea = new JTextArea();
         textArea.setBorder(border);
         Font arialBolditalic12 = new Font("Arial", Font.BOLD + Font.ITALIC, 12);
         textArea.setFont(arialBolditalic12);
-        textArea.setBounds(99, 58, 388, 151);
+        textArea.setBounds(23, 62, 361, 209);
         textArea.setWrapStyleWord(true);
         textArea.setLineWrap(true);
         Document start = sleepCollection.find(eq("_id", ids.get(count))).first();
@@ -141,18 +128,40 @@ public class SleepTweetsFrame extends JFrame {
         contentPane.add(textArea);
 
         final BasicArrowButton next = new BasicArrowButton(BasicArrowButton.EAST);
-        next.setBounds(425, 12, 117, 25);
+        next.setBounds(267, 12, 117, 25);
+
         contentPane.add(next);
         final BasicArrowButton previous = new BasicArrowButton(BasicArrowButton.WEST);
-        previous.setBounds(35, 12, 117, 25);
+        previous.setBounds(22, 12, 117, 25);
         contentPane.add(previous);
         previous.setVisible(false);
+
+        final JSlider slider = new JSlider();
+        slider.setPreferredSize(new Dimension(300, 40));
+        slider.setPaintLabels(true);
+        slider.setPaintTicks(true);
+        slider.setMaximum(10);
+        slider.setMinimum(-10);
+        slider.setValue(0);
+        slider.setMajorTickSpacing(5);
+        slider.setMinorTickSpacing(1);
+        slider.setLabelTable(slider.createStandardLabels(5));
+        slider.setBounds(401, 91, 199, 50);
+
+        contentPane.add(slider);
+        slider.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider) e.getSource();
+                labelAsValue.setText("" + source.getValue());
+            }
+        });
+
 
         next.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 count++;
                 if (count >= 0 && count < limit) {
-                    setBackGroundColor(negativeButton, positiveButton, neutralButton);
+                    reset(submitButton, extraText, typeExtraInfo, labelAsValue, slider);
                     previous.setVisible(true);
                     previous.validate();
                     Document document = sleepCollection.find(eq("_id", ids.get(count))).first();
@@ -169,7 +178,7 @@ public class SleepTweetsFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 count--;
                 if (count >= 0) {
-                    setBackGroundColor(negativeButton, positiveButton, neutralButton);
+                    reset(submitButton, extraText, typeExtraInfo, labelAsValue, slider);
                     Document document = sleepCollection.find(eq("_id", ids.get(count))).first();
                     textArea.setText(document.get("text").toString());
                     next.setVisible(true);
@@ -185,108 +194,84 @@ public class SleepTweetsFrame extends JFrame {
 
         contentPane.setLayout(null);
 
-        final JSlider slider = new JSlider();
-        slider.setPreferredSize(new Dimension(300, 40));
-        slider.setPaintLabels(true);
-        slider.setPaintTicks(true);
-        slider.setMaximum(10);
-        slider.setValue(0);
-        slider.setMajorTickSpacing(5);
-        slider.setMinorTickSpacing(1);
-        slider.setLabelTable(slider.createStandardLabels(5));
-        slider.setBounds(88, 251, 229, 50);
-        contentPane.add(slider);
 
-        JLabel lblLevelOfConfidance = new JLabel("Level of confidence");
-        lblLevelOfConfidance.setBounds(129, 231, 159, 15);
+        JLabel lblLevelOfConfidance = new JLabel("Numerical Label");
+        lblLevelOfConfidance.setBounds(423, 61, 159, 15);
         contentPane.add(lblLevelOfConfidance);
 
         extraText = new JTextField();
-        extraText.setBounds(383, 254, 185, 19);
+        extraText.setBounds(397, 180, 185, 24);
         contentPane.add(extraText);
         extraText.setColumns(10);
 
 
         JLabel lblExtraInformation = new JLabel("Extra Information");
-        lblExtraInformation.setBounds(413, 231, 141, 15);
+        lblExtraInformation.setBounds(441, 153, 141, 15);
         contentPane.add(lblExtraInformation);
 
         final String confidence = "user." + user + "." + "confidence";
         final String label = "user." + user + "." + "label";
-        positiveButton = new JButton("Positive");
-        neutralButton = new JButton("Neutral");
-        negativeButton = new JButton("Negative");
+
+        labelAsValue = new JTextField(15);
+        labelAsValue.setDocument(new JTextFieldLimit(3));
+        labelAsValue.setBounds(619, 91, 34, 24);
+        contentPane.add(labelAsValue);
+        labelAsValue.setColumns(10);
 
 
-        positiveButton.addActionListener(new ActionListener() {
+        labelAsValue.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String text = labelAsValue.getText();
+                if (!text.equals("-") && !text.equals("")) {
+                    int numb = Integer.parseInt(text);
+                    slider.setValue(numb);
+                }
+
+//                if (!text.matches("[-+/\\*] \\d+") ) {
+//                    return;
+//                }
+
+            }
+        });
+
+        submitButton = new JButton("Submit");
+        submitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                annotated.add(ids.get(count));
-                Document doc = new Document(label, "positive").append(confidence, slider.getValue());
-                System.out.println(ids.get(count));
-                setBackGroundColor(negativeButton, positiveButton, neutralButton);
+                String tag = returnLabel(slider.getValue());
+                Document doc = new Document(label, tag).append(confidence, slider.getValue());
+                reset(submitButton, extraText, typeExtraInfo, labelAsValue, slider);
                 sleepCollection.updateOne(eq("_id", ids.get(count)),
                         new Document("$set", doc));
 
-
-                if (isItEmpty(extraText)) {
-                    extraInfoCollection.insertOne(new Document("hashtags", extraText.getText()));
+                if (isItEmpty(extraText) || isItEmpty(typeExtraInfo)) {
+                    if (validateField(extraText, typeExtraInfo)) {
+                        System.out.println("update");
+                        Document extraInfo = new Document(typeExtraInfo.getText(), extraText.getText());
+                        sleepCollection.updateOne(eq("_id", ids.get(count)),
+                                new Document("$set", extraInfo));
+                    }
                 }
 
                 Object source = e.getSource();
                 if (source instanceof Component) {
                     ((Component) source).setBackground(Color.GREEN);
                 }
-            }
-        });
-        positiveButton.setBounds(499, 71, 117, 25);
-        contentPane.add(positiveButton);
+                reset(submitButton, extraText, typeExtraInfo, labelAsValue, slider);
 
 
-        neutralButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                annotated.add(ids.get(count));
-                setBackGroundColor(negativeButton, positiveButton, neutralButton);
-                Document doc = new Document(label, "neutral").append(confidence, slider.getValue());
-                sleepCollection.updateOne(eq("_id", ids.get(count)),
-                        new Document("$set", doc));
-
-                if (isItEmpty(extraText)) {
-                    extraInfoCollection.insertOne(new Document("hashtags", extraText.getText()));
-                }
-
-                Object source = e.getSource();
-                if (source instanceof Component) {
-                    ((Component) source).setBackground(Color.GREEN);
-                }
             }
         });
 
-        neutralButton.setBounds(499, 121, 117, 25);
-        contentPane.add(neutralButton);
+        submitButton.setBounds(396, 236, 158, 35);
+        contentPane.add(submitButton);
+        typeExtraInfo.setBounds(605, 180, 109, 24);
+        contentPane.add(typeExtraInfo);
+        typeExtraInfo.setColumns(10);
 
-
-        negativeButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                annotated.add(ids.get(count));
-                setBackGroundColor(negativeButton, positiveButton, neutralButton);
-                Document doc = new Document(label, "negative").append(confidence, slider.getValue());
-                sleepCollection.updateOne(eq("_id", ids.get(count)),
-                        new Document("$set", doc));
-
-
-                if (isItEmpty(extraText)) {
-                    extraInfoCollection.insertOne(new Document("hashtags", extraText.getText()));
-                }
-
-                Object source = e.getSource();
-                if (source instanceof Component) {
-
-                    ((Component) source).setBackground(Color.GREEN);
-                }
-            }
-        });
-        negativeButton.setBounds(499, 172, 117, 25);
-        contentPane.add(negativeButton);
+        JLabel lblType = new JLabel("Type");
+        lblType.setBounds(625, 153, 70, 15);
+        contentPane.add(lblType);
 
 
     }
@@ -298,18 +283,40 @@ public class SleepTweetsFrame extends JFrame {
             return true;
     }
 
-    private static void setBackGroundColor(JButton button1, JButton button2, JButton button3) {
+    private static void reset(JButton button1, JTextField field1, JTextField field3, JTextField field2, JSlider slider) {
         button1.setBackground(null);
-        button2.setBackground(null);
-        button3.setBackground(null);
+        field1.setText(null);
+        field3.setText(null);
+        field2.setText(null);
+        slider.setValue(0);
     }
 
     private static void clearLocks(MongoCollection<Document> sleepCollection, String userLock) {
         Document doc = new Document(userLock, "yes");
         sleepCollection.updateMany(doc,
                 new Document("$unset", doc), new UpdateOptions().upsert(false));
-
     }
 
+    private String returnLabel(int sliderValue) {
+        if (sliderValue < 0)
+            return "negative";
+        else if (sliderValue == 0)
+            return "neutral";
+        else
+            return "positive";
+    }
+
+    private boolean validateField(JTextField extraText, JTextField extraType) {
+        if (!extraText.getText().trim().isEmpty() && extraType.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Type field empty");
+            System.out.println("1");
+            return false;
+        } else if (extraText.getText().trim().isEmpty() && !extraType.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Extra information is empty");
+            System.out.println("2");
+            return false;
+        } else
+            return true;
+    }
 }	
 

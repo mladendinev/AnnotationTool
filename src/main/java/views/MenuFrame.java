@@ -1,25 +1,14 @@
 package views;
 
-import java.awt.EventQueue;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
+import auth.ConnectionMongo;
+import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
-import com.mongodb.client.MongoCollection;
-
-import auth.ConnectionMongo;
-
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-
-import java.awt.Component;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class MenuFrame extends JFrame {
 
@@ -77,7 +66,7 @@ public class MenuFrame extends JFrame {
 		JButton btnSleep = new JButton("Sleep Related Tweets");
 		btnSleep.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				MongoCollection<Document> collection = connection.database().getCollection("testCollection");
+				MongoCollection<Document> collection = connection.database().getCollection("sleepTweetsTestLocal");
 				SleepTweetsFrame sleepTweetsFrame = new SleepTweetsFrame(collection,connection);
 				f.dispose();
 				sleepTweetsFrame.setVisible(true);
