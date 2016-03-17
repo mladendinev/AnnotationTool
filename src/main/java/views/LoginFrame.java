@@ -1,27 +1,14 @@
 package views;
 
-import java.awt.EventQueue;
-import java.awt.Frame;
+import auth.ConnectionMongo;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
-import java.awt.Insets;
-import auth.ConnectionMongo;
-import java.awt.Window.Type;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 public class LoginFrame extends JFrame{
 
@@ -82,9 +69,7 @@ public class LoginFrame extends JFrame{
 						establishConnection();
 						
 					} catch (Exception e1) {
-						// TODO Auto-generated catch block
 						JOptionPane.showMessageDialog(null, "Wrong Credentials or missing VPN connection");
-//						e1.printStackTrace();
 					}
 			}
 		});
@@ -97,8 +82,7 @@ public class LoginFrame extends JFrame{
 				}	
 				catch (Exception error){
 					JOptionPane.showMessageDialog(null, "Wrong Credentials or missing VPN connection");
-//					throw new RuntimeException();
-					
+
 				}
 			}
 		});
@@ -130,7 +114,6 @@ public class LoginFrame extends JFrame{
 	      @Override
 	      public void keyPressed(KeyEvent e) {
 	         if(e.getKeyCode() == KeyEvent.VK_ENTER){
-	            System.out.println("Heurrica!");
 	         }
 	      }
 

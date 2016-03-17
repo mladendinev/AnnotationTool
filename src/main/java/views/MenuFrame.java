@@ -1,25 +1,14 @@
 package views;
 
-import java.awt.EventQueue;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
+import auth.ConnectionMongo;
+import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
-import com.mongodb.client.MongoCollection;
-
-import auth.ConnectionMongo;
-
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-
-import java.awt.Component;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class MenuFrame extends JFrame {
 
@@ -45,10 +34,8 @@ public class MenuFrame extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	
 
-	
-	
+
 	public MenuFrame(final ConnectionMongo connection) {
 		this.connection = connection;
 		setTitle("Welcome "+ connection.username());
@@ -62,26 +49,38 @@ public class MenuFrame extends JFrame {
 		JButton btnNewButton = new JButton("Diagnostic Tweets");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				MongoCollection<Document> collection = connection.database().getCollection("diagnosticTweets");
-				DiagnosticTweetsFrame diagnosticFrame = new DiagnosticTweetsFrame(collection,connection);
-				f.dispose();
-				diagnosticFrame.setVisible(true);
-				
-			}
+//				MongoCollection<Document> collection = connection.database().getCollection("diagnosticTweets");
+//				DiagnosticTweetsFrame diagnosticFrame = new DiagnosticTweetsFrame(collection,connection);
+//				f.dispose();
+//				diagnosticFrame.setVisible(true);
+
+                MongoCollection<Document> collection = connection.database().getCollection("diagnosticTweets");
+                CommonFrame diagnosticFrame = new CommonFrame(collection, connection);
+                diagnosticFrame.showDiagnosticFrame();
+                f.dispose();
+
+            }
 		});
 		btnNewButton.setBounds(12, 98, 184, 60);
-//		btnNewButton.setBorder(null);
 		btnNewButton.setMargin(new Insets(0,0,0,0));
 		contentPane.add(btnNewButton);
-		
+
 		JButton btnSleep = new JButton("Sleep Related Tweets");
 		btnSleep.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				MongoCollection<Document> collection = connection.database().getCollection("testCollection");
-				SleepTweetsFrame sleepTweetsFrame = new SleepTweetsFrame(collection,connection);
-				f.dispose();
-				sleepTweetsFrame.setVisible(true);
-			}
+
+//				MongoCollection<Document> collection = connection.database().getCollection("sleepTweetsTestLocal");
+//				SleepTweetsFrame sleepTweetsFrame = new SleepTweetsFrame(collection,connection);
+//				f.dispose();
+//				sleepTweetsFrame.setVisible(true);
+
+
+                MongoCollection<Document> collection = connection.database().getCollection("sleepTweetsTestLocal");
+                CommonFrame sleepFrame = new CommonFrame(collection, connection);
+                sleepFrame.showSleepFrame();
+                f.dispose();
+
+            }
 		});
 		btnSleep.setActionCommand("Sleep");
 		btnSleep.setMargin(new Insets(0, 0, 0, 0));

@@ -1,9 +1,9 @@
 package auth;
 
-import java.util.Collections;
-
 import com.mongodb.*;
 import com.mongodb.client.MongoDatabase;
+
+import java.util.Collections;
 
 public class ConnectionMongo {
 	
