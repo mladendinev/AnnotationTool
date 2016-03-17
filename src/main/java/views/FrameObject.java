@@ -27,8 +27,6 @@ public class FrameObject extends JFrame {
     private Utilities utilities = new Utilities();
     private JPanel contentPane;
     public int count;
-    private static int count1 = 0;
-    private static int count2 = 0;
 
     public ArrayList<ObjectId> ids;
     private JTextField labelAsValue;
@@ -36,18 +34,24 @@ public class FrameObject extends JFrame {
     private JTextField extraText;
     public JButton submitButton;
     private final JTextField typeExtraInfo = new JTextField();
+    private String title;
 
 
     public FrameObject(ArrayList<ObjectId> Tweets, MongoCollection<Document> diagnosticCollection,
-                       ConnectionMongo connection, String user) {
+                       ConnectionMongo connection, String user,String title) {
         this.ids = Tweets;
         this.collection = diagnosticCollection;
         this.connection = connection;
         this.user = user;
+        this.title = title;
     }
 
-    public void generateGUI() {
+    public void generateGUI()
+    {
         final int limit = ids.size();
+
+
+
         Document lock = new Document(user + "_lock", "yes");
         for (ObjectId tweet : ids) {
             collection.updateOne(eq("_id", tweet),
@@ -56,7 +60,7 @@ public class FrameObject extends JFrame {
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 731, 350);
-        setTitle("Annotate diagnostic tweets");
+        setTitle("Annotate " + title + " tweets");
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
@@ -222,7 +226,7 @@ public class FrameObject extends JFrame {
         JLabel lblType = new JLabel("Type");
         lblType.setBounds(625, 153, 70, 15);
         contentPane.add(lblType);
+        setVisible(true);
     }
-
 
 }

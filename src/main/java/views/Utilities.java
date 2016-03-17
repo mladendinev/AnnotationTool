@@ -21,7 +21,7 @@ public final class Utilities {
         else if (sliderValue == 0)
             return "neutral";
         else
-            return "positve";
+            return "positive";
     }
 
     public static void reset(JButton button1, JTextField field1, JTextField field3, JTextField field2, JSlider slider) {

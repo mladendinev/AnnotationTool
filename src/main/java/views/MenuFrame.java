@@ -34,10 +34,8 @@ public class MenuFrame extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	
 
-	
-	
+
 	public MenuFrame(final ConnectionMongo connection) {
 		this.connection = connection;
 		setTitle("Welcome "+ connection.username());
@@ -51,26 +49,39 @@ public class MenuFrame extends JFrame {
 		JButton btnNewButton = new JButton("Diagnostic Tweets");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				MongoCollection<Document> collection = connection.database().getCollection("diagnosticTweets");
-				DiagnosticTweetsFrame diagnosticFrame = new DiagnosticTweetsFrame(collection,connection);
-				f.dispose();
-				diagnosticFrame.setVisible(true);
-				
-			}
+//				MongoCollection<Document> collection = connection.database().getCollection("diagnosticTweets");
+//				DiagnosticTweetsFrame diagnosticFrame = new DiagnosticTweetsFrame(collection,connection);
+//				f.dispose();
+//				diagnosticFrame.setVisible(true);
+
+                MongoCollection<Document> collection = connection.database().getCollection("diagnosticTweets");
+                CommonFrame diagnosticFrame = new CommonFrame(collection, connection);
+                diagnosticFrame.showDiagnosticFrame();
+                f.dispose();
+
+            }
 		});
 		btnNewButton.setBounds(12, 98, 184, 60);
 //		btnNewButton.setBorder(null);
 		btnNewButton.setMargin(new Insets(0,0,0,0));
 		contentPane.add(btnNewButton);
-		
+
 		JButton btnSleep = new JButton("Sleep Related Tweets");
 		btnSleep.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				MongoCollection<Document> collection = connection.database().getCollection("sleepTweetsTestLocal");
-				SleepTweetsFrame sleepTweetsFrame = new SleepTweetsFrame(collection,connection);
-				f.dispose();
-				sleepTweetsFrame.setVisible(true);
-			}
+
+//				MongoCollection<Document> collection = connection.database().getCollection("sleepTweetsTestLocal");
+//				SleepTweetsFrame sleepTweetsFrame = new SleepTweetsFrame(collection,connection);
+//				f.dispose();
+//				sleepTweetsFrame.setVisible(true);
+
+
+                MongoCollection<Document> collection = connection.database().getCollection("sleepTweetsTestLocal");
+                CommonFrame sleepFrame = new CommonFrame(collection, connection);
+                sleepFrame.showSleepFrame();
+                f.dispose();
+
+            }
 		});
 		btnSleep.setActionCommand("Sleep");
 		btnSleep.setMargin(new Insets(0, 0, 0, 0));
