@@ -62,7 +62,6 @@ public class MenuFrame extends JFrame {
             }
 		});
 		btnNewButton.setBounds(12, 98, 184, 60);
-//		btnNewButton.setBorder(null);
 		btnNewButton.setMargin(new Insets(0,0,0,0));
 		contentPane.add(btnNewButton);
 

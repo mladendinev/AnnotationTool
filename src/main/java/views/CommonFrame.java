@@ -48,7 +48,6 @@ public class CommonFrame {
             numberTweetsForAnnot--;
         }
 
-        final int limit = ids.size();
         Collections.shuffle(ids);
 
         final Document lock = new Document(user + "_lock", "yes");
@@ -86,8 +85,6 @@ public class CommonFrame {
             uniqueIds.put((Long) potentialDiagCur.next().get("tweet_id"), (ObjectId) potentialDiagCur.next().get("_id"));
             numberOfPotentialTweets--;
         }
-//        System.out.println(uniqueIds.size());
-//
         if (commonTweetsCursor.hasNext()) {
             while (randomTweetsCursor.hasNext() && numberRandomTweets > 0) {
                 Document das = randomTweetsCursor.next();

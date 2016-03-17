@@ -69,9 +69,7 @@ public class LoginFrame extends JFrame{
 						establishConnection();
 						
 					} catch (Exception e1) {
-						// TODO Auto-generated catch block
 						JOptionPane.showMessageDialog(null, "Wrong Credentials or missing VPN connection");
-//						e1.printStackTrace();
 					}
 			}
 		});
@@ -84,8 +82,7 @@ public class LoginFrame extends JFrame{
 				}	
 				catch (Exception error){
 					JOptionPane.showMessageDialog(null, "Wrong Credentials or missing VPN connection");
-//					throw new RuntimeException();
-					
+
 				}
 			}
 		});
@@ -117,7 +114,6 @@ public class LoginFrame extends JFrame{
 	      @Override
 	      public void keyPressed(KeyEvent e) {
 	         if(e.getKeyCode() == KeyEvent.VK_ENTER){
-	            System.out.println("Heurrica!");
 	         }
 	      }
 

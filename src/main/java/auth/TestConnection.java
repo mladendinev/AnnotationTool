@@ -19,8 +19,9 @@ public class TestConnection {
 			MongoClient mongoClient = new MongoClient(new ServerAddress("localhost", 27017), Collections.singletonList(credential),mongoOptions);
 			MongoDatabase db = mongoClient.getDatabase("SearchApiResults");
 			MongoCollection<Document> collection =  db.getCollection("testEncrypt");
+
+			//If the line throws exception the connection hasn't been established
 			collection.count();
-//			mongoClient.close();
 		}
 
 
