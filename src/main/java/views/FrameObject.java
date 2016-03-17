@@ -6,14 +6,13 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -21,28 +20,39 @@ import static com.mongodb.client.model.Filters.eq;
 /**
  * Created by mladen on 3/17/16.
  */
-public class FrameObject {
-    private ArrayList<ObjectId> uniqueTweets;
+public class FrameObject extends JFrame {
     private MongoCollection<Document> collection;
-    private ConnectionMongo connection;
-    private String user;
+    public String user;
 
-    public FrameObject(ArrayList<ObjectId> Tweets,MongoCollection<Document> diagnosticCollection, ConnectionMongo connection,String user) {
-        this.uniqueTweets = Tweets;
+    private Utilities utilities = new Utilities();
+    private JPanel contentPane;
+    public int count;
+    private static int count1 = 0;
+    private static int count2 = 0;
 
+    public ArrayList<ObjectId> ids;
+    private JTextField labelAsValue;
+    public ConnectionMongo connection;
+    private JTextField extraText;
+    public JButton submitButton;
+    private final JTextField typeExtraInfo = new JTextField();
+
+
+    public FrameObject(ArrayList<ObjectId> Tweets, MongoCollection<Document> diagnosticCollection,
+                       ConnectionMongo connection, String user) {
+        this.ids = Tweets;
         this.collection = diagnosticCollection;
         this.connection = connection;
         this.user = user;
     }
 
-    public static void generateGUI() {
-
+    public void generateGUI() {
+        final int limit = ids.size();
         Document lock = new Document(user + "_lock", "yes");
         for (ObjectId tweet : ids) {
-            diagnosticCollection.updateOne(eq("_id", tweet),
+            collection.updateOne(eq("_id", tweet),
                     new Document("$set", lock));
         }
-
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 731, 350);
@@ -55,7 +65,7 @@ public class FrameObject {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                utilities.clearLocks(diagnosticCollection, user + "_lock");
+                Utilities.clearLocks(collection, user + "_lock");
                 System.exit(0);
             }
         });
@@ -68,7 +78,7 @@ public class FrameObject {
         textArea.setBounds(23, 62, 361, 209);
         textArea.setWrapStyleWord(true);
         textArea.setLineWrap(true);
-        Document start = diagnosticCollection.find(eq("_id", ids.get(count))).first();
+        Document start = collection.find(eq("_id", ids.get(count))).first();
         System.out.println(ids.get(count));
         textArea.setText(start.get("text").toString());
         contentPane.add(textArea);
@@ -107,10 +117,10 @@ public class FrameObject {
                 count++;
                 if (count >= 0 && count < limit) {
                     System.out.println(ids.get(count));
-                    utilities.reset(submitButton, extraText, typeExtraInfo, labelAsValue, slider);
+                    Utilities.reset(submitButton, extraText, typeExtraInfo, labelAsValue, slider);
                     previous.setVisible(true);
                     previous.validate();
-                    Document document = diagnosticCollection.find(eq("_id", ids.get(count))).first();
+                    Document document = collection.find(eq("_id", ids.get(count))).first();
                     textArea.setText(document.get("text").toString());
                     if (count == limit - 1) {
                         next.setVisible(false);
@@ -124,8 +134,8 @@ public class FrameObject {
             public void actionPerformed(ActionEvent e) {
                 count--;
                 if (count >= 0) {
-                    utilities.reset(submitButton, extraText, typeExtraInfo, labelAsValue, slider);
-                    Document document = diagnosticCollection.find(eq("_id", ids.get(count))).first();
+                    Utilities.reset(submitButton, extraText, typeExtraInfo, labelAsValue, slider);
+                    Document document = collection.find(eq("_id", ids.get(count))).first();
                     textArea.setText(document.get("text").toString());
                     next.setVisible(true);
                     next.validate();
@@ -182,15 +192,15 @@ public class FrameObject {
         submitButton = new JButton("Submit");
         submitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String tag = utilities.returnLabel(slider.getValue());
+                String tag = Utilities.returnLabel(slider.getValue());
                 Document doc = new Document(label, tag).append(confidence, slider.getValue());
-                diagnosticCollection.updateOne(eq("_id", ids.get(count)),
+                collection.updateOne(eq("_id", ids.get(count)),
                         new Document("$set", doc));
-                if (utilities.isItEmpty(extraText) || utilities.isItEmpty(typeExtraInfo)) {
+                if (Utilities.isItEmpty(extraText) || Utilities.isItEmpty(typeExtraInfo)) {
                     if (utilities.validateField(extraText, typeExtraInfo)) {
                         System.out.println("update");
                         Document extraInfo = new Document(typeExtraInfo.getText(), extraText.getText());
-                        diagnosticCollection.updateOne(eq("_id", ids.get(count)),
+                        collection.updateOne(eq("_id", ids.get(count)),
                                 new Document("$set", extraInfo));
                     }
                 }
@@ -199,7 +209,7 @@ public class FrameObject {
                 if (source instanceof Component) {
                     ((Component) source).setBackground(Color.GREEN);
                 }
-                utilities.reset(submitButton, extraText, typeExtraInfo, labelAsValue, slider);
+                Utilities.reset(submitButton, extraText, typeExtraInfo, labelAsValue, slider);
 
             }
         });
@@ -213,10 +223,6 @@ public class FrameObject {
         lblType.setBounds(625, 153, 70, 15);
         contentPane.add(lblType);
     }
-
-}
-
-
 
 
 }
